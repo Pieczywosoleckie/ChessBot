@@ -8,7 +8,9 @@
 #include <windows.h>
 
 
+#include "chess.h"
 #include "resource.h"
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -35,9 +37,10 @@ const char *piece_vert_src = R"(
 #version 330 core
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aTexCoord;
+uniform vec2 uOffset;
 out vec2 vTexCoord;
 void main() {
-    gl_Position = vec4(aPos, 0.0, 1.0);
+    gl_Position = vec4(aPos + uOffset, 0.0, 1.0);
     vTexCoord = aTexCoord;
 })";
 
@@ -119,6 +122,39 @@ GLuint loadTextureFromResource(int resourceId) {
   return tex;
 }
 
+GLuint getTextureForPiece(char piece, GLuint WhitetexK, GLuint WhitetexQ, GLuint WhitetexR,
+                          GLuint WhitetexB, GLuint WhitetexN, GLuint WhitetexP , GLuint BlacktexK, GLuint BlacktexQ, GLuint BlacktexR,
+                          GLuint BlacktexB, GLuint BlacktexN, GLuint BlacktexP) {
+  switch (piece) {
+  case 'K':
+    return WhitetexK;
+  case 'Q':
+    return WhitetexQ;
+  case 'R':
+    return WhitetexR;
+  case 'B':
+    return WhitetexB;
+  case 'N':
+    return WhitetexN;
+  case 'P':
+    return WhitetexP;
+  case 'k':
+    return BlacktexK;
+  case 'q':
+    return BlacktexQ;
+  case 'r':
+    return BlacktexR;
+  case 'b':
+    return BlacktexB;
+  case 'n':
+    return BlacktexN;
+  case 'p':
+    return BlacktexP;
+  default:
+    return 0;
+  }
+}
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -157,8 +193,8 @@ int main() {
   GLuint pieceProg = createProgram(piece_vert_src, piece_frag_src);
 
   float step = 2.0f / 8.0f;
-  std::vector<float> boardVerts;
 
+  std::vector<float> boardVerts;
   for (int row = 0; row < 8; ++row) {
     for (int col = 0; col < 8; ++col) {
       float x0 = -1.0f + col * step;
@@ -190,18 +226,10 @@ int main() {
                         (void *)(2 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
-  int kingCol = 0; 
-  int kingRow = 7; 
-
-  float kx0 = -1.0f + kingCol * step;
-  float ky0 = -1.0f + kingRow * step;
-  float kx1 = kx0 + step;
-  float ky1 = ky0 + step;
-
   float pieceVerts[] = {
-      kx0, ky0, 0.0f, 0.0f, kx1, ky0, 1.0f, 0.0f, kx1, ky1, 1.0f, 1.0f,
+      0.0f, 0.0f, 0.0f, 0.0f, step, 0.0f, 1.0f, 0.0f, step, step, 1.0f, 1.0f,
 
-      kx0, ky0, 0.0f, 0.0f, kx1, ky1, 1.0f, 1.0f, kx0, ky1, 0.0f, 1.0f};
+      0.0f, 0.0f, 0.0f, 0.0f, step, step, 1.0f, 1.0f, 0.0f, step, 0.0f, 1.0f};
 
   GLuint pieceVAO, pieceVBO;
   glGenVertexArrays(1, &pieceVAO);
@@ -215,7 +243,23 @@ int main() {
                         (void *)(2 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
-  GLuint kingTex = loadTextureFromResource(IDR_WHITE_KING);
+  GLuint texKing = loadTextureFromResource(IDR_WHITE_KING);
+  GLuint texQueen = loadTextureFromResource(IDR_WHITE_QUEEN);
+  GLuint texRook = loadTextureFromResource(IDR_WHITE_ROOK);
+  GLuint texBishop = loadTextureFromResource(IDR_WHITE_BISHOP);
+  GLuint texKnight = loadTextureFromResource(IDR_WHITE_KNIGHT);
+  GLuint texPawn = loadTextureFromResource(IDR_WHITE_PAWN);
+
+  GLuint BlacktexKing = loadTextureFromResource(IDR_BLACK_KING);
+  GLuint BlacktexQueen = loadTextureFromResource(IDR_BLACK_QUEEN);
+  GLuint BlacktexRook = loadTextureFromResource(IDR_BLACK_ROOK);
+  GLuint BlacktexBishop = loadTextureFromResource(IDR_BLACK_BISHOP);
+  GLuint BlacktexKnight = loadTextureFromResource(IDR_BLACK_KNIGHT);
+  GLuint BlacktexPawn = loadTextureFromResource(IDR_BLACK_PAWN);
+
+  Chess chess;
+
+  GLint offsetLoc = glGetUniformLocation(pieceProg, "uOffset");
 
   while (!glfwWindowShouldClose(window)) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -225,12 +269,37 @@ int main() {
     glBindVertexArray(boardVAO);
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(boardVerts.size() / 5));
 
-    if (kingTex != 0) {
-      glUseProgram(pieceProg);
-      glBindTexture(GL_TEXTURE_2D, kingTex);
-      glUniform1i(glGetUniformLocation(pieceProg, "uTexture"), 0);
-      glBindVertexArray(pieceVAO);
-      glDrawArrays(GL_TRIANGLES, 0, 6);
+    glUseProgram(pieceProg);
+    glUniform1i(glGetUniformLocation(pieceProg, "uTexture"), 0);
+    glBindVertexArray(pieceVAO);
+
+    auto board = chess.getBoard();
+    for (int row = 0; row < 8; ++row) {
+      for (int col = 0; col < 8; ++col) {
+        char piece = board[row][col];
+        if (piece == '.')
+          continue;
+
+        GLuint tex = getTextureForPiece(piece, texKing, texQueen, texRook,
+                                        texBishop, texKnight, texPawn,
+
+			                            BlacktexKing, BlacktexQueen, BlacktexRook, 
+                                        BlacktexBishop, BlacktexKnight, BlacktexPawn
+                                        );
+
+        if (tex == 0)
+          continue;
+
+        int glRow = 7 - row;
+        int glCol = col;
+
+        float offsetX = -1.0f + glCol * step;
+        float offsetY = -1.0f + glRow * step;
+
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glUniform2f(offsetLoc, offsetX, offsetY);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+      }
     }
 
     glfwSwapBuffers(window);
@@ -241,7 +310,12 @@ int main() {
   glDeleteBuffers(1, &boardVBO);
   glDeleteVertexArrays(1, &pieceVAO);
   glDeleteBuffers(1, &pieceVBO);
-  glDeleteTextures(1, &kingTex);
+  glDeleteTextures(1, &texKing);
+  glDeleteTextures(1, &texQueen);
+  glDeleteTextures(1, &texRook);
+  glDeleteTextures(1, &texBishop);
+  glDeleteTextures(1, &texKnight);
+  glDeleteTextures(1, &texPawn);
   glDeleteProgram(boardProg);
   glDeleteProgram(pieceProg);
 

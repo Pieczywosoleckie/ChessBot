@@ -1,3 +1,16 @@
 #include "resource.h"
 
-IDR_WHITE_KING RCDATA "../../img/whiteKing.png"
+IDR_WHITE_KING   RCDATA "../../img/whiteKing.png"
+IDR_WHITE_QUEEN  RCDATA "../../img/whiteQueen.png"
+IDR_WHITE_ROOK   RCDATA "../../img/whiteRook.png"
+IDR_WHITE_BISHOP RCDATA "../../img/whiteBishop.png"
+IDR_WHITE_KNIGHT RCDATA "../../img/whiteKnight.png"
+IDR_WHITE_PAWN   RCDATA "../../img/whitePawn.png"
+
+IDR_BLACK_KING   RCDATA "../../img/blackKing.png"
+IDR_BLACK_QUEEN  RCDATA "../../img/blackQueen.png"
+IDR_BLACK_ROOK   RCDATA "../../img/blackRook.png"
+IDR_BLACK_BISHOP RCDATA "../../img/blackBishop.png"
+IDR_BLACK_KNIGHT RCDATA "../../img/blackKnight.png"
+IDR_BLACK_PAWN   RCDATA "../../img/blackPawn.png"
+
