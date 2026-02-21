@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
-project(ChessBot LANGUAGES CXX)
+project(ChessBot LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,7 +11,9 @@ file(GLOB_RECURSE SOURCES
     ${PROJECT_ROOT}/src/*.cpp
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+set(RC_FILE ${PROJECT_ROOT}/src/resources.rc)
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${RC_FILE})
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE

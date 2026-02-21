@@ -1,0 +1,3 @@
+#include "resource.h"
+
+IDR_WHITE_KING RCDATA "../../img/whiteKing.png"
