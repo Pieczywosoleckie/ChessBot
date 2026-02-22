@@ -7,10 +7,8 @@
 #include <vector>
 #include <windows.h>
 
-
 #include "chess.h"
 #include "resource.h"
-
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -122,9 +120,11 @@ GLuint loadTextureFromResource(int resourceId) {
   return tex;
 }
 
-GLuint getTextureForPiece(char piece, GLuint WhitetexK, GLuint WhitetexQ, GLuint WhitetexR,
-                          GLuint WhitetexB, GLuint WhitetexN, GLuint WhitetexP , GLuint BlacktexK, GLuint BlacktexQ, GLuint BlacktexR,
-                          GLuint BlacktexB, GLuint BlacktexN, GLuint BlacktexP) {
+GLuint getTextureForPiece(char piece, GLuint WhitetexK, GLuint WhitetexQ,
+                          GLuint WhitetexR, GLuint WhitetexB, GLuint WhitetexN,
+                          GLuint WhitetexP, GLuint BlacktexK, GLuint BlacktexQ,
+                          GLuint BlacktexR, GLuint BlacktexB, GLuint BlacktexN,
+                          GLuint BlacktexP) {
   switch (piece) {
   case 'K':
     return WhitetexK;
@@ -155,10 +155,137 @@ GLuint getTextureForPiece(char piece, GLuint WhitetexK, GLuint WhitetexQ, GLuint
   }
 }
 
+bool isDragging = false;
+int dragRow = -1;
+int dragCol = -1;
+float mouseNdcX = 0.0f;
+float mouseNdcY = 0.0f;
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
+void mouse_button_callback(GLFWwindow *window, int button, int action,
+                           int mods) {
+  if (button != GLFW_MOUSE_BUTTON_LEFT)
+    return;
+
+  double mx, my;
+  glfwGetCursorPos(window, &mx, &my);
+
+  int winW, winH;
+  glfwGetWindowSize(window, &winW, &winH);
+
+  float ndcX = (float)(mx / winW) * 2.0f - 1.0f;
+  float ndcY = 1.0f - (float)(my / winH) * 2.0f;
+
+  float step = 2.0f / 8.0f;
+
+  if (action == GLFW_PRESS) {
+    int col = (int)((ndcX + 1.0f) / step);
+    int row = (int)((ndcY + 1.0f) / step);
+
+    if (col < 0)
+      col = 0;
+    if (col > 7)
+      col = 7;
+    if (row < 0)
+      row = 0;
+    if (row > 7)
+      row = 7;
+
+    int boardRow = 7 - row;
+
+    Chess *chess = (Chess *)glfwGetWindowUserPointer(window);
+    auto board = chess->getBoard();
+
+    if (board[boardRow][col] != '.') {
+      isDragging = true;
+      dragRow = boardRow;
+      dragCol = col;
+      mouseNdcX = ndcX;
+      mouseNdcY = ndcY;
+    }
+  } else if (action == GLFW_RELEASE) {
+    if (isDragging && dragRow >= 0 && dragCol >= 0) {
+      int toCol = (int)((ndcX + 1.0f) / step);
+      int toRow = (int)((ndcY + 1.0f) / step);
+
+      if (toCol < 0)
+        toCol = 0;
+      if (toCol > 7)
+        toCol = 7;
+      if (toRow < 0)
+        toRow = 0;
+      if (toRow > 7)
+        toRow = 7;
+
+      int toBoardRow = 7 - toRow;
+
+      Chess *chess = (Chess *)glfwGetWindowUserPointer(window);
+      auto board = chess->getBoard();
+      char piece = board[dragRow][dragCol];
+
+      std::pair<int, int> from = {dragRow, dragCol};
+      std::pair<int, int> to = {toBoardRow, toCol};
+
+      if (from != to) {
+        bool moved = false;
+        switch (piece) {
+        case 'P':
+			moved = chess->moveWhitePawn(from, to);
+            break;
+        case 'p':
+          moved = chess->moveBlackPawn(from, to);
+          break;
+        case 'N':
+            break;
+        case 'n':
+          moved = chess->moveBlackKnight(from, to);
+          break;
+        case 'B':
+            break;
+        case 'b':
+          moved = chess->moveBlackBishop(from, to);
+          break;
+        case 'R':
+            break;
+        case 'r':
+          moved = chess->moveBlackRook(from, to);
+          break;
+        case 'Q':
+            break;
+        case 'q':
+          moved = chess->moveBlackQueen(from, to);
+          break;
+        case 'K':
+            break;
+        case 'k':
+          moved = chess->moveBlackKing(from, to);
+          break;
+        }
+        if (moved) {
+          printf("Moved '%c' from (%d,%d) to (%d,%d)\n", piece, from.first,
+                 from.second, to.first, to.second);
+        } else {
+          printf("Invalid move for '%c' from (%d,%d) to (%d,%d)\n", piece,
+                 from.first, from.second, to.first, to.second);
+        }
+      }
+    }
+    isDragging = false;
+    dragRow = -1;
+    dragCol = -1;
+  }
+}
+
+void cursor_pos_callback(GLFWwindow *window, double mx, double my) {
+  int winW, winH;
+  glfwGetWindowSize(window, &winW, &winH);
+  mouseNdcX = (float)(mx / winW) * 2.0f - 1.0f;
+  mouseNdcY = 1.0f - (float)(my / winH) * 2.0f;
 }
 
 int main() {
@@ -180,6 +307,8 @@ int main() {
 
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, key_callback);
+  glfwSetMouseButtonCallback(window, mouse_button_callback);
+  glfwSetCursorPosCallback(window, cursor_pos_callback);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     printf("Failed to initialize GLAD\n");
@@ -258,6 +387,7 @@ int main() {
   GLuint BlacktexPawn = loadTextureFromResource(IDR_BLACK_PAWN);
 
   Chess chess;
+  glfwSetWindowUserPointer(window, &chess);
 
   GLint offsetLoc = glGetUniformLocation(pieceProg, "uOffset");
 
@@ -274,18 +404,26 @@ int main() {
     glBindVertexArray(pieceVAO);
 
     auto board = chess.getBoard();
+    GLuint draggedTex = 0;
+
     for (int row = 0; row < 8; ++row) {
       for (int col = 0; col < 8; ++col) {
         char piece = board[row][col];
         if (piece == '.')
           continue;
 
-        GLuint tex = getTextureForPiece(piece, texKing, texQueen, texRook,
-                                        texBishop, texKnight, texPawn,
+        if (isDragging && row == dragRow && col == dragCol) {
+          draggedTex = getTextureForPiece(
+              piece, texKing, texQueen, texRook, texBishop, texKnight, texPawn,
+              BlacktexKing, BlacktexQueen, BlacktexRook, BlacktexBishop,
+              BlacktexKnight, BlacktexPawn);
+          continue;
+        }
 
-			                            BlacktexKing, BlacktexQueen, BlacktexRook, 
-                                        BlacktexBishop, BlacktexKnight, BlacktexPawn
-                                        );
+        GLuint tex = getTextureForPiece(
+            piece, texKing, texQueen, texRook, texBishop, texKnight, texPawn,
+            BlacktexKing, BlacktexQueen, BlacktexRook, BlacktexBishop,
+            BlacktexKnight, BlacktexPawn);
 
         if (tex == 0)
           continue;
@@ -300,6 +438,16 @@ int main() {
         glUniform2f(offsetLoc, offsetX, offsetY);
         glDrawArrays(GL_TRIANGLES, 0, 6);
       }
+    }
+
+    if (isDragging && draggedTex != 0) {
+      float halfStep = step / 2.0f;
+      float offsetX = mouseNdcX - halfStep;
+      float offsetY = mouseNdcY - halfStep;
+
+      glBindTexture(GL_TEXTURE_2D, draggedTex);
+      glUniform2f(offsetLoc, offsetX, offsetY);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     glfwSwapBuffers(window);

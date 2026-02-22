@@ -23,25 +23,53 @@ public:
     };
   }
 
-  bool movePawn(const std::pair<int, int> from, const std::pair<int, int> to) {
-    return false;
+  bool moveBlackPawn(const std::pair<int, int> from,
+      const std::pair<int, int> to);
+
+  bool moveBlackKnight(const std::pair<int, int> from,
+      const std::pair<int, int> to) {
+	  return false;
   }
-  bool moveKnight(const std::pair<int, int> from,
+
+  bool moveBlackBishop(const std::pair<int, int> from,
                   const std::pair<int, int> to) {
     return false;
   }
-  bool moveBishop(const std::pair<int, int> from,
-                  const std::pair<int, int> to) {
+  bool moveBlackRook(const std::pair<int, int> from, const std::pair<int, int> to) {
     return false;
   }
-  bool moveRook(const std::pair<int, int> from, const std::pair<int, int> to) {
+  bool moveBlackQueen(const std::pair<int, int> from, const std::pair<int, int> to) {
     return false;
   }
-  bool moveQueen(const std::pair<int, int> from, const std::pair<int, int> to) {
+  bool moveBlackKing(const std::pair<int, int> from, const std::pair<int, int> to) {
     return false;
   }
-  bool moveKing(const std::pair<int, int> from, const std::pair<int, int> to) {
-    return false;
+
+
+
+
+
+
+  bool moveWhitePawn(const std::pair<int, int> from,
+      const std::pair<int, int> to);
+
+  bool moveWhiteKnight(const std::pair<int, int> from,
+      const std::pair<int, int> to) {
+      return false;
+  }
+
+  bool moveWhiteBishop(const std::pair<int, int> from,
+      const std::pair<int, int> to) {
+      return false;
+  }
+  bool moveWhiteRook(const std::pair<int, int> from, const std::pair<int, int> to) {
+      return false;
+  }
+  bool moveWhiteQueen(const std::pair<int, int> from, const std::pair<int, int> to) {
+      return false;
+  }
+  bool moveWhiteKing(const std::pair<int, int> from, const std::pair<int, int> to) {
+      return false;
   }
 
   std::vector<std::vector<char>> getBoard() { return this->board; }
