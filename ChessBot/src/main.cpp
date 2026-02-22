@@ -241,28 +241,39 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
           moved = chess->moveBlackPawn(from, to);
           break;
         case 'N':
+            chess->SetEnPassantFalse();
             break;
         case 'n':
+            chess->SetEnPassantFalse();
           moved = chess->moveBlackKnight(from, to);
           break;
         case 'B':
+            chess->SetEnPassantFalse();
             break;
         case 'b':
+          chess->SetEnPassantFalse();
           moved = chess->moveBlackBishop(from, to);
           break;
         case 'R':
+            chess->SetEnPassantFalse();
+			moved = chess->moveWhiteRook(from, to);
             break;
         case 'r':
+            chess->SetEnPassantFalse();
           moved = chess->moveBlackRook(from, to);
           break;
         case 'Q':
+            chess->SetEnPassantFalse();
             break;
         case 'q':
+            chess->SetEnPassantFalse();
           moved = chess->moveBlackQueen(from, to);
           break;
         case 'K':
+            chess->SetEnPassantFalse();
             break;
         case 'k':
+            chess->SetEnPassantFalse();
           moved = chess->moveBlackKing(from, to);
           break;
         }

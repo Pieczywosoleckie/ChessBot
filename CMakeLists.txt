@@ -13,7 +13,7 @@ file(GLOB_RECURSE SOURCES
 
 set(RC_FILE ${PROJECT_ROOT}/src/resources.rc)
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${RC_FILE})
+add_executable(${PROJECT_NAME} ${SOURCES} ${RC_FILE} "ChessBot/src/chess/King.cpp" "ChessBot/src/chess/Knight.cpp")
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
