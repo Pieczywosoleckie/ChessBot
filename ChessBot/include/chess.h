@@ -43,9 +43,9 @@ public:
   bool moveBlackRook(const std::pair<int, int> from, 
       const std::pair<int, int> to);
 
-  bool moveBlackQueen(const std::pair<int, int> from, const std::pair<int, int> to) {
-    return false;
-  }
+  bool moveBlackQueen(const std::pair<int, int> from, 
+      const std::pair<int, int> to);
+
   bool moveBlackKing(const std::pair<int, int> from, const std::pair<int, int> to) {
     return false;
   }
@@ -67,9 +67,10 @@ public:
   bool moveWhiteRook(const std::pair<int, int> from, 
       const std::pair<int, int> to);
 
-  bool moveWhiteQueen(const std::pair<int, int> from, const std::pair<int, int> to) {
-      return false;
-  }
+  bool moveWhiteQueen(const std::pair<int, int> from,
+      const std::pair<int, int> to);
+
+
   bool moveWhiteKing(const std::pair<int, int> from, const std::pair<int, int> to) {
       return false;
   }

@@ -279,6 +279,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
                     break;
                 case 'Q':
                     chess->SetEnPassantFalse();
+                    chess->moveWhiteQueen(from, to);
                     break;
                 case 'q':
                     chess->SetEnPassantFalse();
