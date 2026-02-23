@@ -245,7 +245,12 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
 
             if (from != to) {
                 bool moved = false;
-
+                if (chess->WhiteMove() != isupper(piece)) {
+                    isDragging = false;
+                    dragRow = -1;
+                    dragCol = -1;
+                    return;
+                }
                 switch (piece) {
                 case 'P':
                     moved = chess->moveWhitePawn(from, to);
@@ -296,6 +301,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
                 if (moved) {
                     printf("Moved '%c' from (%d,%d) to (%d,%d)\n", piece, from.first,
                         from.second, to.first, to.second);
+                    chess->PlayedMoved();
                 }
                 else {
                     printf("Invalid move for '%c' from (%d,%d) to (%d,%d)\n", piece,
@@ -304,10 +310,13 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
             
             }
         }
+
+
     isDragging = false;
     dragRow = -1;
     dragCol = -1;
     }
+
 }
 
 void cursor_pos_callback(GLFWwindow *window, double mx, double my) {
