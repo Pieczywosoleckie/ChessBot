@@ -35,14 +35,10 @@ public:
       const std::pair<int, int> to);
 
   bool moveBlackKnight(const std::pair<int, int> from,
-      const std::pair<int, int> to) {
-	  return false;
-  }
+      const std::pair<int, int> to);
 
   bool moveBlackBishop(const std::pair<int, int> from,
-                  const std::pair<int, int> to) {
-    return false;
-  }
+      const std::pair<int, int> to);
 
   bool moveBlackRook(const std::pair<int, int> from, 
       const std::pair<int, int> to);
@@ -63,14 +59,11 @@ public:
       const std::pair<int, int> to);
 
   bool moveWhiteKnight(const std::pair<int, int> from,
-      const std::pair<int, int> to) {
-      return false;
-  }
+      const std::pair<int, int> to);
 
   bool moveWhiteBishop(const std::pair<int, int> from,
-      const std::pair<int, int> to) {
-      return false;
-  }
+      const std::pair<int, int> to);
+
   bool moveWhiteRook(const std::pair<int, int> from, 
       const std::pair<int, int> to);
 
