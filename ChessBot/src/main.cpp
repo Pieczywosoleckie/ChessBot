@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <windows.h>
-
+#include <thread>
 #include "chess.h"
 #include "resource.h"
 
@@ -292,6 +292,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
                     break;
                 case 'K':
                     chess->SetEnPassantFalse();
+					moved = chess->moveWhiteKing(from, to);
                     break;
                 case 'k':
                     chess->SetEnPassantFalse();
@@ -344,6 +345,7 @@ int main() {
     }
 
     glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_pos_callback);
@@ -433,70 +435,100 @@ int main() {
 
     GLint offsetLoc = glGetUniformLocation(pieceProg, "uOffset");
 
+    double previousTime = glfwGetTime();
+    int frameCount = 0;
+
+    const double targetFPS = 240.0;
+    const double targetFrameTime = 1.0 / targetFPS;
+
+    double lastTime = glfwGetTime();
+
+
+
+
     while (!glfwWindowShouldClose(window)) {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(boardProg);
-    glBindVertexArray(boardVAO);
-    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(boardVerts.size() / 5));
+        double currentTime = glfwGetTime();
+        double delta = currentTime - lastTime;
+        lastTime = currentTime;
 
-    glUseProgram(pieceProg);
-    glUniform1i(glGetUniformLocation(pieceProg, "uTexture"), 0);
-    glBindVertexArray(pieceVAO);
 
-    auto board = chess.getBoard();
-    GLuint draggedTex = 0;
+        frameCount++;
+        if (currentTime - previousTime >= 1.0)
+        {
+            double fps = frameCount / (currentTime - previousTime);
 
-    for (int row = 0; row < 8; ++row) {
-        for (int col = 0; col < 8; ++col) {
-            char piece = board[row][col];
+            std::string title = "Szachownica 8x8 : " + std::to_string((int)fps) + " FPS";
+            glfwSetWindowTitle(window, title.c_str());
 
-            if (piece == '.'){
-                continue;
-            }
+            previousTime = currentTime;
+            frameCount = 0;
+        }
 
-            if (isDragging && row == dragRow && col == dragCol) {
-                draggedTex = getTextureForPiece(
+
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(boardProg);
+        glBindVertexArray(boardVAO);
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)(boardVerts.size() / 5));
+
+        glUseProgram(pieceProg);
+        glUniform1i(glGetUniformLocation(pieceProg, "uTexture"), 0);
+        glBindVertexArray(pieceVAO);
+
+        auto board = chess.getBoard();
+        GLuint draggedTex = 0;
+
+        for (int row = 0; row < 8; ++row) {
+            for (int col = 0; col < 8; ++col) {
+                char piece = board[row][col];
+
+                if (piece == '.'){
+                    continue;
+                }
+
+                if (isDragging && row == dragRow && col == dragCol) {
+                    draggedTex = getTextureForPiece(
+                        piece, texKing, texQueen, texRook, texBishop, texKnight, texPawn,
+                        BlacktexKing, BlacktexQueen, BlacktexRook, BlacktexBishop,
+                        BlacktexKnight, BlacktexPawn);
+                    continue;
+                }
+
+                GLuint tex = getTextureForPiece(
                     piece, texKing, texQueen, texRook, texBishop, texKnight, texPawn,
                     BlacktexKing, BlacktexQueen, BlacktexRook, BlacktexBishop,
                     BlacktexKnight, BlacktexPawn);
-                continue;
+
+                if (tex == 0) {
+                    continue;
+                }
+
+                int glRow = 7 - row;
+                int glCol = col;
+
+                float offsetX = -1.0f + glCol * step;
+                float offsetY = -1.0f + glRow * step;
+
+                glBindTexture(GL_TEXTURE_2D, tex);
+                glUniform2f(offsetLoc, offsetX, offsetY);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
             }
+        }
 
-            GLuint tex = getTextureForPiece(
-                piece, texKing, texQueen, texRook, texBishop, texKnight, texPawn,
-                BlacktexKing, BlacktexQueen, BlacktexRook, BlacktexBishop,
-                BlacktexKnight, BlacktexPawn);
+        if (isDragging && draggedTex != 0) {
+            float halfStep = step / 2.0f;
+            float offsetX = mouseNdcX - halfStep;
+            float offsetY = mouseNdcY - halfStep;
 
-            if (tex == 0) {
-                continue;
-            }
-
-            int glRow = 7 - row;
-            int glCol = col;
-
-            float offsetX = -1.0f + glCol * step;
-            float offsetY = -1.0f + glRow * step;
-
-            glBindTexture(GL_TEXTURE_2D, tex);
+            glBindTexture(GL_TEXTURE_2D, draggedTex);
             glUniform2f(offsetLoc, offsetX, offsetY);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
-    }
 
-    if (isDragging && draggedTex != 0) {
-        float halfStep = step / 2.0f;
-        float offsetX = mouseNdcX - halfStep;
-        float offsetY = mouseNdcY - halfStep;
-
-        glBindTexture(GL_TEXTURE_2D, draggedTex);
-        glUniform2f(offsetLoc, offsetX, offsetY);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-    }
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
 
     }
 

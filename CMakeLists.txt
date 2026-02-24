@@ -25,9 +25,10 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg-master/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 endif()
 
-find_package(glfw3 CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED) 
 find_package(glad CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED) 
+find_package(OpenGL REQUIRED)
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE glfw
