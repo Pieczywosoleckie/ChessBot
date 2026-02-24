@@ -26,6 +26,12 @@ bool Chess::moveWhiteRook(const std::pair<int, int> from,
 
 		this->board[to.first][to.second] = this->board[from.first][from.second];
 		this->board[from.first][from.second] = '.';
+
+		if (IsCheck(true)) {
+			this->board[from.first][from.second] = this->board[to.first][to.second];
+			this->board[to.first][to.second] = '.';
+			return false;
+		}
 		return true;
 	}
 
@@ -42,6 +48,12 @@ bool Chess::moveWhiteRook(const std::pair<int, int> from,
 
 		this->board[to.first][to.second] = this->board[from.first][from.second];
 		this->board[from.first][from.second] = '.';
+
+		if (IsCheck(true)) {
+			this->board[from.first][from.second] = this->board[to.first][to.second];
+			this->board[to.first][to.second] = '.';
+			return false;
+		}
 		return true;
 	}
 	
@@ -77,6 +89,12 @@ bool Chess::moveBlackRook(const std::pair<int, int> from,
 
 		this->board[to.first][to.second] = this->board[from.first][from.second];
 		this->board[from.first][from.second] = '.';
+
+		if (IsCheck(false)) {
+			this->board[from.first][from.second] = this->board[to.first][to.second];
+			this->board[to.first][to.second] = '.';
+			return false;
+		}
 		return true;
 	}
 
@@ -93,6 +111,12 @@ bool Chess::moveBlackRook(const std::pair<int, int> from,
 
 		this->board[to.first][to.second] = this->board[from.first][from.second];
 		this->board[from.first][from.second] = '.';
+
+		if (IsCheck(false)) {
+			this->board[from.first][from.second] = this->board[to.first][to.second];
+			this->board[to.first][to.second] = '.';
+			return false;
+		}
 		return true;
 	}
 

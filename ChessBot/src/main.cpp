@@ -268,7 +268,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action,
                     break;
                 case 'B':
                     chess->SetEnPassantFalse();
-					chess->moveWhiteBishop(from, to);
+					moved = chess->moveWhiteBishop(from, to);
                     break;
                 case 'b':
                     chess->SetEnPassantFalse();

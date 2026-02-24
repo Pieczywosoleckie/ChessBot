@@ -23,6 +23,12 @@ bool Chess::moveWhitePawn(const std::pair<int, int> from,
 		this->board[to.first][to.second] = this->board[from.first][from.second];
 		this->board[from.first][from.second] = '.';
 
+		if (IsCheck(true)) {
+			this->board[from.first][from.second] = this->board[to.first][to.second];
+			this->board[to.first][to.second] = '.';
+			return false;
+		}
+
 		this->PossibleEnPassantMove = { true, to.first - 1, to.second };
 		std::cout << "Possible en-pasant : " << get<1>(this->PossibleEnPassantMove) << ":" << get<2>(this->PossibleEnPassantMove) << std::endl;
 		return true;
@@ -35,6 +41,12 @@ bool Chess::moveWhitePawn(const std::pair<int, int> from,
 			else {
 				this->board[to.first][to.second] = this->board[from.first][from.second];
 				this->board[from.first][from.second] = '.';
+
+				if (IsCheck(true)) {
+					this->board[from.first][from.second] = this->board[to.first][to.second];
+					this->board[to.first][to.second] = '.';
+					return false;
+				}
 				return true;
 			}
 		}
@@ -46,6 +58,12 @@ bool Chess::moveWhitePawn(const std::pair<int, int> from,
 			else {
 				this->board[to.first][to.second] = this->board[from.first][from.second];
 				this->board[from.first][from.second] = '.';
+
+				if (IsCheck(true)) {
+					this->board[from.first][from.second] = this->board[to.first][to.second];
+					this->board[to.first][to.second] = '.';
+					return false;
+				}
 				return true;
 			}
 		}
@@ -75,7 +93,11 @@ bool Chess::moveBlackPawn(const std::pair<int, int> from,
 		}
 		this->board[to.first][to.second] = this->board[from.first][from.second];
 		this->board[from.first][from.second] = '.';
-
+		if (IsCheck(false)) {
+			this->board[from.first][from.second] = this->board[to.first][to.second];
+			this->board[to.first][to.second] = '.';
+			return false;
+		}
 
 		this->PossibleEnPassantMove = { true, to.first + 1, to.second };
 		std::cout << "Possible en-pasant : " << get<1>(this->PossibleEnPassantMove) << ":" << get<2>(this->PossibleEnPassantMove) << std::endl;
@@ -89,6 +111,12 @@ bool Chess::moveBlackPawn(const std::pair<int, int> from,
 			else {
 				this->board[to.first][to.second] = this->board[from.first][from.second];
 				this->board[from.first][from.second] = '.';
+
+				if (IsCheck(false)) {
+					this->board[from.first][from.second] = this->board[to.first][to.second];
+					this->board[to.first][to.second] = '.';
+					return false;
+				}
 				return true;
 			}
 		}
@@ -101,6 +129,12 @@ bool Chess::moveBlackPawn(const std::pair<int, int> from,
 			else {
 				this->board[to.first][to.second] = this->board[from.first][from.second];
 				this->board[from.first][from.second] = '.';
+				if (IsCheck(false)) {
+					this->board[from.first][from.second] = this->board[to.first][to.second];
+					this->board[to.first][to.second] = '.';
+					return false;
+				}
+
 				return true;
 			}
 		}

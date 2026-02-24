@@ -7,8 +7,10 @@ struct Chess {
 
 private:
     std::vector<std::vector<char>> board;
-    std::vector<std::vector<bool>> WhiteAtackPos;
-    std::vector<std::vector<bool>> BlackAtackPos;
+
+	std::pair<int, int> whiteKingPos = { 7, 4 };
+	std::pair<int, int> blackKingPos = { 0, 4 };
+
 
     std::tuple<bool, int, int> PossibleEnPassantMove;
 
@@ -52,11 +54,6 @@ public:
     bool moveBlackKing(const std::pair<int, int> from, 
         const std::pair<int, int> to);
 
-
-
-
-
-
     bool moveWhitePawn(const std::pair<int, int> from,
         const std::pair<int, int> to);
 
@@ -78,6 +75,9 @@ public:
 
 
 
+	bool IsCheck(bool white) const;
+
+    bool isPathClear(std::pair<int, int> from, std::pair<int, int> to) const;
 
 
     void PlayedMoved() {
